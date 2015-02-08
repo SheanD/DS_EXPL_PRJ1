@@ -1,0 +1,59 @@
+## CREATES COUSERA JOHN HOPKINS EXPLORATORY DATA ANALYSIS PROJECT 1 PLOT 1
+setwd("C:/WORKINGDIRECTORY")
+
+## LOAD PACKAGES
+if (!require("data.table")) {
+  install.packages("data.table")
+}
+
+if (!require("dplyr")) {
+  install.packages("dplyr")
+}
+
+if (!require("lubridate")) {
+  install.packages("lubridate")
+}
+
+require(data.table)
+require(dplyr)
+require(lubridate)
+
+library(data.table)
+library(dplyr)
+library(lubridate)
+
+## LOAD FILE
+file <- "household_power_consumption.txt"
+
+if(file.exists(file)==FALSE){
+  zipfile <- "exdata_data_household_power_consumption.zip"
+  unzip(zipfile, files = NULL, list = FALSE, overwrite = TRUE,
+        junkpaths = FALSE, exdir = ".", unzip = "internal",
+        setTimes = FALSE)
+}
+
+## LOAD DATA
+if (exists("alldata")== FALSE) {
+  alldata <- data.table(read.table("household_power_consumption.txt",na.strings = "?", sep=";",header=TRUE))
+}
+
+if (exists("prjdata")==FALSE) {
+  ## SPECIFY DATE RANGE OF INTEREST
+  date1 <- dmy_hms("01-02-2007 00:00:00")
+  date2 <- dmy_hms("03-02-2007 00:00:00")
+  
+  ## CREATE PLOT DATA
+  prjdata <- alldata %>%
+    mutate(DateTime = dmy_hms(paste(Date, Time)))  %>%
+    select(DateTime, Global_active_power:Sub_metering_3, -Date, -Time) %>%
+    filter(date1 <= DateTime & DateTime < date2)
+}
+
+## PLOT 1
+png(filename="C:/WORKINGDIRECTORY/plot1.png")
+  par(mfrow=c(1,1))
+  plot1 <- prjdata$Global_active_power
+  hist(plot1, breaks=12, main="Global Active Power",xlab="Global Active Power (kilowatts)", col="red")
+dev.off()
+
+
